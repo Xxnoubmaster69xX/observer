@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FameHall } from "./components/FameHall";
 import { DissectionRoom } from "./components/DissectionRoom";
 import { TacticalCenter } from "./components/TacticalCenter";
 import { ImplementationLibrary } from "./components/ImplementationLibrary";
+import { Maximize, Minimize } from "lucide-react";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("fame");
@@ -23,10 +24,13 @@ export default function App() {
           </div>
         </div>
         
-        <div className="text-[10px] font-mono text-white/40 text-right leading-tight hidden sm:block">
-          AUTHORS:<br/>
-          <span className="text-white/80">DAVID EDUARDO LARA FLORES</span><br/>
-          <span className="text-white/80">RAÚL FRANCISCO RAMÍREZ TIENDA</span>
+        <div className="flex items-center gap-4">
+          <FullscreenButton />
+          <div className="text-[10px] font-mono text-white/40 text-right leading-tight hidden sm:block">
+            AUTHORS:<br/>
+            <span className="text-white/80">DAVID EDUARDO LARA FLORES</span><br/>
+            <span className="text-white/80">RAÚL FRANCISCO RAMÍREZ TIENDA</span>
+          </div>
         </div>
       </nav>
       
@@ -59,6 +63,41 @@ function NavButton({ active, onClick, label }: { active: boolean; onClick: () =>
       }`}
     >
       {label}
+    </button>
+  );
+}
+
+function FullscreenButton() {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
+
+  return (
+    <button
+      onClick={toggleFullscreen}
+      className="p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center"
+      title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+    >
+      {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
     </button>
   );
 }
