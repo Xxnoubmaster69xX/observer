@@ -2,10 +2,11 @@ import { useState } from "react";
 import { Copy, Check, Terminal, FileCode2 } from "lucide-react";
 
 export function ImplementationLibrary() {
-  const [activeLang, setActiveLang] = useState("typescript");
+  const [activeLang, setActiveLang] = useState("uml");
   const [copied, setCopied] = useState(false);
 
   const languages = [
+    { id: "uml", name: "UML", type: "Diagrama Estructural" },
     { id: "typescript", name: "TypeScript", type: "OOP Moderno" },
     { id: "python", name: "Python", type: "Scripting / Backend" },
     { id: "java", name: "Java", type: "Enterprise OOP" },
@@ -13,6 +14,32 @@ export function ImplementationLibrary() {
   ];
 
   const codeSnippets: Record<string, string> = {
+    uml: `+---------------------+          +-----------------------+
+|      Subject        |          |       Observer        |
++---------------------+          +-----------------------+
+| - observers: List   |          |                       |
++---------------------+          +-----------------------+
+| + subscribe(obs)    |<>--------| + update(data)        |
+| + unsubscribe(obs)  |          |                       |
+| + notify(data)      |          +-----------------------+
++---------------------+                     ^
+          ^                                 |
+          |                                 |
+          |                                 |
++---------------------+          +-----------------------+
+|  ConcreteSubject    |          |   ConcreteObserver    |
++---------------------+          +-----------------------+
+| - state: any        |          | - subjectState: any   |
++---------------------+          +-----------------------+
+| + getState()        |          | + update(data)        |
+| + setState(state)   |          |                       |
++---------------------+          +-----------------------+
+
+[ Leyenda ]
+<>-------- : Agregación (El Subject tiene una lista de Observers)
+^          : Herencia / Implementación (Concrete implementa la interfaz)
+-          : Privado
++          : Público`,
     typescript: `// TypeScript: Patrón Observer Clásico
 
 interface Observer {
@@ -255,7 +282,9 @@ func main() {
             <div className="flex items-center gap-2 text-white/50 text-sm font-mono">
               <FileCode2 className="w-4 h-4" />
               observer_pattern.
-              {activeLang === "typescript"
+              {activeLang === "uml"
+                ? "txt"
+                : activeLang === "typescript"
                 ? "ts"
                 : activeLang === "python"
                   ? "py"
