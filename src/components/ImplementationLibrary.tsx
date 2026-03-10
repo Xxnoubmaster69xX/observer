@@ -9,6 +9,7 @@ export function ImplementationLibrary() {
     { id: "uml", name: "UML", type: "Diagrama Estructural" },
     { id: "typescript", name: "TypeScript", type: "OOP Moderno" },
     { id: "python", name: "Python", type: "Scripting / Backend" },
+    { id: "python-gui", name: "Python (GUI)", type: "Tkinter App" },
     { id: "java", name: "Java", type: "Enterprise OOP" },
     { id: "go", name: "Go", type: "Concurrencia (Channels)" },
   ];
@@ -98,6 +99,112 @@ display = Display()
 
 sensor.subscribe(display)
 sensor.notify(24.5)`,
+
+    "python-gui": `# Python: Patrón Observer con Interfaz Gráfica (Tkinter)
+# Este ejemplo muestra un panel de control que actualiza múltiples gráficos
+# y displays simultáneamente cuando cambia un valor.
+
+import tkinter as tk
+from tkinter import ttk
+
+# --- Patrón Observer ---
+class Subject:
+    def __init__(self):
+        self._observers = []
+        self._state = 0
+
+    def attach(self, observer):
+        if observer not in self._observers:
+            self._observers.append(observer)
+
+    def detach(self, observer):
+        try:
+            self._observers.remove(observer)
+        except ValueError:
+            pass
+
+    def notify(self):
+        for observer in self._observers:
+            observer.update(self._state)
+
+    @property
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, value):
+        self._state = value
+        self.notify() # Notifica a todos los observers del cambio
+
+# --- Observers (Componentes UI) ---
+class TextDisplay(ttk.Label):
+    def update(self, value):
+        self.config(text=f"Valor Actual: {value}")
+
+class ProgressBarDisplay(ttk.Progressbar):
+    def update(self, value):
+        self['value'] = value
+
+class ColorDisplay(tk.Canvas):
+    def update(self, value):
+        # Cambia de azul a rojo basado en el valor (0-100)
+        r = int((value / 100) * 255)
+        b = int(((100 - value) / 100) * 255)
+        color = f'#{r:02x}00{b:02x}'
+        self.config(bg=color)
+
+# --- Aplicación Principal ---
+class App(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Observer Pattern - Dashboard")
+        self.geometry("400x300")
+        self.configure(padx=20, pady=20)
+
+        # Crear el Subject (Modelo de datos)
+        self.data_model = Subject()
+
+        # --- UI: Controles (Cambian el estado) ---
+        control_frame = ttk.LabelFrame(self, text="Panel de Control", padding=10)
+        control_frame.pack(fill="x", pady=(0, 20))
+
+        self.slider = ttk.Scale(
+            control_frame, from_=0, to=100, orient="horizontal",
+            command=self.on_slider_change
+        )
+        self.slider.pack(fill="x")
+
+        # --- UI: Observers (Reaccionan al estado) ---
+        display_frame = ttk.LabelFrame(self, text="Monitores (Observers)", padding=10)
+        display_frame.pack(fill="both", expand=True)
+
+        # 1. Observer de Texto
+        self.text_obs = TextDisplay(display_frame, font=("Helvetica", 14))
+        self.text_obs.pack(pady=5)
+        self.data_model.attach(self.text_obs)
+
+        # 2. Observer de Barra de Progreso
+        self.progress_obs = ProgressBarDisplay(display_frame, length=200, mode='determinate')
+        self.progress_obs.pack(pady=10)
+        self.data_model.attach(self.progress_obs)
+
+        # 3. Observer de Color (Canvas)
+        self.color_obs = ColorDisplay(display_frame, width=200, height=50, bg="blue")
+        self.color_obs.pack(pady=5)
+        self.data_model.attach(self.color_obs)
+
+        # Inicializar con valor 0
+        self.data_model.state = 0
+
+    def on_slider_change(self, event):
+        # Cuando el usuario mueve el slider, actualizamos el modelo.
+        # El modelo se encarga de notificar a todos los observers.
+        new_value = int(float(self.slider.get()))
+        self.data_model.state = new_value
+
+if __name__ == "__main__":
+    app = App()
+    app.mainloop()`,
 
     java: `// Java: Patrón Observer (Usando Interfaces)
 
@@ -286,7 +393,7 @@ func main() {
                 ? "txt"
                 : activeLang === "typescript"
                 ? "ts"
-                : activeLang === "python"
+                : activeLang === "python" || activeLang === "python-gui"
                   ? "py"
                   : activeLang === "java"
                     ? "java"
